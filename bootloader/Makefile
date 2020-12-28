@@ -13,13 +13,14 @@ GDB     = arm-none-eabi-gdb
 
 
 # Set the compiler flags
-# -x defines the code language c, -O1 defines the optimisation level
+# -x defines the code language c, -O1 defines the optimization level
 CFLAGS   += -x c -O1 -g3 -ffunction-sections -fdata-sections -mlong-calls -Wall
 CFLAGS   += -std=gnu99 -mcpu=cortex-a5
 CFLAGS   += -Wno-unused-function -Wno-unused-variable
 
 # Set the linker flags 
 LDFLAGS  += -Wl,--gc-sections -mcpu=cortex-a5 -nostartfiles
+LDFLAGS  += -T$(TOP)/arch/linker.ld -Wl,--print-memory-usage
 
 # Set the assembler flags 
 ASMFLAGS += -mcpu=cortex-a5 -g3
@@ -37,10 +38,10 @@ include $(TOP)/include/Makefile
 SRC_GLOBAL := $(addprefix $(BUILDDIR)/, $(SRC))
 ASM_GLOBAL := $(addprefix $(BUILDDIR)/, $(ASM))
 
-# Add all .s and ..c files innto OBJ and change to .o
+# Add all .s and .c files innto OBJ and change to .o
 OBJ := $(SRC_GLOBAL:.c=.o) $(ASM_GLOBAL:.s=.o)
 
-# Secondary keeps the o-files in the entry folder 
+# Prevents Make from delete object files in the entry folder 
 .SECONDARY: $(OBJ)
 .PHONY: all elf bin lss clean
 
@@ -51,31 +52,31 @@ elf: $(BUILDDIR)/$(TARGET).elf
 bin: $(BUILDDIR)/$(TARGET).bin
 lss: $(BUILDDIR)/$(TARGET).lss
 
-# Rule for convert o-files to elf-file
+# Rule for convert object files to elf file
+# Using compiler for linking
 %.elf: $(OBJ)
-	#Usin compiler for linking
 	@$(CC) $(LDFLAGS) $^ -o $@
 
-# Rule for convert elf-files to bin-file
+# Rule for convert elf to binary
 %.bin: %.elf
 	@$(OBJCOPY) -O binary $< $@
 
-# Rule for convert elf-files to lss-file
+# Rule for convert elf to lss
 %.lss: %.elf
 	@$(OBJDUMP) -h -S $< > $@
 
-# Rule for merge the sorcefiles to o-files
+# Rule for compiling the source files into object files
 $(BUILDDIR)/%.o: $(TOP)/%.c
-	@echo Compiling $(patsubst $(TOP)/%, %, $^)
+	@echo "    Compiling " $(patsubst $(TOP)/%, %, $^)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(CPFLAGS) -c $< -o $@
 
-# Rule for merge the assemblyfiles to o-files
+# Rule for compiling the assembly files into object files
 $(BUILDDIR)/%.o: $(TOP)/%.s
-	@echo Assembling $(patsubst $(TOP)/%, %, $^)
+	@echo "    Assembling" $(patsubst $(TOP)/%, %, $^)
 	@mkdir -p $(dir $@)
 	@$(ARM_ASM) $(ASMFLAGS) -c $< -o $@
 
 # Remove the build directory
 clean:
-	@rm -r $(BUILDDIR)
+	@rm -r -f $(BUILDDIR)
