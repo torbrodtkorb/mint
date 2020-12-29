@@ -16,6 +16,9 @@ SVC_STACK = 64;
 UNDEF_STACK = 64;
 
 SECTIONS {
+    .arm_vetors : {
+        KEEP(*(.arm_vetors))
+    } > ram
 
     /* We place the code first */
     .text : {

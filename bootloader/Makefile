@@ -55,6 +55,7 @@ lss: $(BUILDDIR)/$(TARGET).lss
 # Rule for convert object files to elf file
 # Using compiler for linking
 %.elf: $(OBJ)
+@echo 
 	@$(CC) $(LDFLAGS) $^ -o $@
 
 # Rule for convert elf to binary
