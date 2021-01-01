@@ -16,8 +16,18 @@ arm_vectors:
     ldr pc, =irq
     ldr pc, =fiq
 
+.section .text
+
+.extern _bss_s
+.extern _bss_e
 reset:
-    b .
+    ldr r4, =0x01
+    mov r5, #0x03
+    
+    add r6, r5, r4
+    ldr r7, =_bss_s
+    ldr r8, =_bss_e
+    b main
 
 undef:
     b .

@@ -46,16 +46,22 @@ OBJ := $(SRC_GLOBAL:.c=.o) $(ASM_GLOBAL:.s=.o)
 .PHONY: all elf bin lss clean
 
 # Defines elf, bin, lss as prerequisite 
-all: elf bin lss
+all: elf bin lss 
+
+$(info $(BUILDDIR)/scripts/debug.gdb)
 
 elf: $(BUILDDIR)/$(TARGET).elf
 bin: $(BUILDDIR)/$(TARGET).bin
 lss: $(BUILDDIR)/$(TARGET).lss
 
+debug: $(BUILDDIR)/$(TARGET).elf
+	@$(GDB) -f $< -x $(TOP)/scripts/debug.gdb
+
+
 # Rule for convert object files to elf file
 # Using compiler for linking
 %.elf: $(OBJ)
-@echo 
+	@echo 
 	@$(CC) $(LDFLAGS) $^ -o $@
 
 # Rule for convert elf to binary
