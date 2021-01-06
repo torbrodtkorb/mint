@@ -15,11 +15,11 @@ GDB     = arm-none-eabi-gdb
 # Set the compiler flags
 # -x defines the code language c, -O1 defines the optimization level
 CFLAGS   += -x c -O1 -g3 -ffunction-sections -fdata-sections -mlong-calls -Wall
-CFLAGS   += -std=gnu99 -mcpu=cortex-a5
+CFLAGS   += -std=gnu99 -mcpu=cortex-a5 -ffreestanding
 CFLAGS   += -Wno-unused-function -Wno-unused-variable
 
 # Set the linker flags 
-LDFLAGS  += -Wl,--gc-sections -mcpu=cortex-a5 -nostartfiles
+LDFLAGS  += -Wl,--gc-sections -mcpu=cortex-a5
 LDFLAGS  += -T$(TOP)/arch/linker.ld -Wl,--print-memory-usage
 
 # Set the assembler flags 
@@ -48,13 +48,13 @@ OBJ := $(SRC_GLOBAL:.c=.o) $(ASM_GLOBAL:.s=.o)
 # Defines elf, bin, lss as prerequisite 
 all: elf bin lss 
 
-$(info $(BUILDDIR)/scripts/debug.gdb)
-
 elf: $(BUILDDIR)/$(TARGET).elf
 bin: $(BUILDDIR)/$(TARGET).bin
 lss: $(BUILDDIR)/$(TARGET).lss
 
 debug: $(BUILDDIR)/$(TARGET).elf
+	@echo
+	@echo Starting the debugger
 	@$(GDB) -f $< -x $(TOP)/scripts/debug.gdb
 
 

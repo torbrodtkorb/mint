@@ -16,8 +16,8 @@ SVC_STACK = 64;
 UNDEF_STACK = 64;
 
 SECTIONS {
-    .arm_vetors : {
-        KEEP(*(.arm_vetors))
+    .arm_vectors : {
+        KEEP(*(.arm_vectors))
     } > ram
 
     /* We place the code first */
@@ -94,28 +94,28 @@ SECTIONS {
     } > ram
 
     .stack (NOLOAD) : {
-        . = ALIGN(8);
         . = . + USER_STACK;
+        . = ALIGN(8);
         _user_stack_e = .;
         
-        . = ALIGN(8);
         . = . + FIQ_STACK;
+        . = ALIGN(8);
         _fiq_stack_e = .;
 
-        . = ALIGN(8);
         . = . + IRQ_STACK;
+        . = ALIGN(8);
         _irq_stack_e = .;
 
-        . = ALIGN(8);
         . = . + ABORT_STACK;
+        . = ALIGN(8);
         _abort_stack_e = .;
 
-        . = ALIGN(8);
         . = . + SVC_STACK;
+        . = ALIGN(8);
         _svc_stack_e = .;
        
-        . = ALIGN(8);
         . = . + UNDEF_STACK;
+        . = ALIGN(8);
         _undef_stack_e = .;
 
     } > ram
