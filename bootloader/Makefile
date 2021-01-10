@@ -29,10 +29,13 @@ ASMFLAGS += -mcpu=cortex-a5 -g3
 SRC :=
 ASM :=
 include $(TOP)/entry/Makefile
+include $(TOP)/drivers/Makefile
 
 # C preprosessor flags
 CPFLAGS := 
 include $(TOP)/include/Makefile
+
+DEPS_GLOBAL = $(addprefix $(TOP)/include/, $(DEPS))
 
 # Global path for all the source fils and assembly files
 SRC_GLOBAL := $(addprefix $(BUILDDIR)/, $(SRC))
@@ -73,14 +76,14 @@ debug: $(BUILDDIR)/$(TARGET).elf
 	@$(OBJDUMP) -h -S $< > $@
 
 # Rule for compiling the source files into object files
-$(BUILDDIR)/%.o: $(TOP)/%.c
-	@echo "    Compiling " $(patsubst $(TOP)/%, %, $^)
+$(BUILDDIR)/%.o: $(TOP)/%.c $(DEPS_GLOBAL)
+	@echo "    Compiling " $(patsubst $(TOP)/%, %, $<)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(CPFLAGS) -c $< -o $@
 
 # Rule for compiling the assembly files into object files
-$(BUILDDIR)/%.o: $(TOP)/%.s
-	@echo "    Assembling" $(patsubst $(TOP)/%, %, $^)
+$(BUILDDIR)/%.o: $(TOP)/%.s $(DEPS_GLOBAL)
+	@echo "    Assembling" $(patsubst $(TOP)/%, %, $<)
 	@mkdir -p $(dir $@)
 	@$(ARM_ASM) $(ASMFLAGS) -c $< -o $@
 
