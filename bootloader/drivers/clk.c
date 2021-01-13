@@ -1,26 +1,36 @@
 #include <drivers/clk.h>
-#include <mint/reg_map.h>
+#include <mint/regmap.h>
 
+// This returns the peripheral frequenzy givenen thie PID number. 
+u32 clk_get_peripheral_freq(u32 pid) {
+    
+}
 
 // Enables the peripheral clock that corresponds with the given PID
 void clk_peripheral_enable(u32 pid) {
+    // Get the hardware
+    struct pmc_reg* const hw = PMC;
+
     if (pid < 2) { return; }
 
     // Two registers are used to enables the peripheral clock
     if (pid < 32) {
-        PMC->PCER0 = (1 << pid);
+        hw->pcer0 = (1 << pid);
     } else if (pid < 64) {
-        PMC->PCER1 = (1 << (pid - 32));
+        hw->pcer1 = (1 << (pid - 32));
     }
 }
 // Disables the peripheral clock that corresponds with the given PID
 void clk_peripheral_disable(u32 pid) {
+    // Get the hardware
+    struct pmc_reg* const hw = PMC;
+    
     if (pid < 2) { return; }
 
     // Two registers are used to disables the peripheral clock
     if (pid < 32) {
-        PMC->PCDR0 = (1 << pid);
+        hw->pcdr0 = (1 << pid);
     } else if (pid < 64) {
-        PMC->PCDR1 = (1 << (pid - 32));
+        hw->pcdr1 = (1 << (pid - 32));
     }
 }

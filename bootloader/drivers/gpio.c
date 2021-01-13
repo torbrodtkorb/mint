@@ -4,8 +4,8 @@
 
 // This function will mask a pin. This must be done before applying a 
 // configuration on the pin 
-static inline void mask_pin(struct gpio_reg* port, u32 pin) { 
-    port->MSKR = (1 << pin);
+static inline void mask_pin(struct gpio_reg* port, u32 pin) {
+    port->mskr = (1 << pin);
 }
 
 // Applies a configuration for the given pin. This includes direction, drive and
@@ -13,6 +13,7 @@ static inline void mask_pin(struct gpio_reg* port, u32 pin) {
 void gpio_set_conf(struct gpio_reg* port, u32 pin, struct gpio_conf* conf) {
     // Mask the pin to configure 
     mask_pin(port, pin);
+    
     u32 reg = (conf->dir << 8) |
               (conf->drive << 16);
 
@@ -23,15 +24,15 @@ void gpio_set_conf(struct gpio_reg* port, u32 pin, struct gpio_conf* conf) {
     else if (conf->pull == GPIO_PULL_DOWN) {
         reg |= (1 << 10);
     }
-    port->CFGR = reg;
+    port->cfgr = reg;
 }
 
 // Drives the given pin to VCC
 void gpio_set(struct gpio_reg* port, u32 pin) {
-    port->SODR = (1 << pin);
+    port->sodr = (1 << pin);
 }
 
 // Drives the given pin to GND
 void gpio_clear(struct gpio_reg* port, u32 pin) {
-    port->CODR = (1 << pin);
+    port->codr = (1 << pin);
 }

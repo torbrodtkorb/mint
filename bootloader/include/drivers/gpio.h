@@ -3,7 +3,7 @@
 #define GPIO_H
 
 #include <mint/types.h>
-#include <mint/reg_map.h>
+#include <mint/regmap.h>
 
 enum gpio_dir {
     GPIO_INPUT,

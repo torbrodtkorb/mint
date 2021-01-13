@@ -77,13 +77,13 @@ debug: $(BUILDDIR)/$(TARGET).elf
 
 # Rule for compiling the source files into object files
 $(BUILDDIR)/%.o: $(TOP)/%.c $(DEPS_GLOBAL)
-	@echo "    Compiling " $(patsubst $(TOP)/%, %, $<)
+	@echo " " CC $(patsubst $(TOP)/%, $(notdir $(TOP))/%, $<)
 	@mkdir -p $(dir $@)
 	@$(CC) $(CFLAGS) $(CPFLAGS) -c $< -o $@
 
 # Rule for compiling the assembly files into object files
 $(BUILDDIR)/%.o: $(TOP)/%.s $(DEPS_GLOBAL)
-	@echo "    Assembling" $(patsubst $(TOP)/%, %, $<)
+	@echo " " AS $(patsubst $(TOP)/%, $(notdir $(TOP))/%, $<)
 	@mkdir -p $(dir $@)
 	@$(ARM_ASM) $(ASMFLAGS) -c $< -o $@
 

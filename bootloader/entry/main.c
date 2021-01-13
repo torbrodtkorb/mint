@@ -17,19 +17,19 @@ void main(void)
 
 
     // Turn on LED
-    gpio_set_conf(GPIOA, 10, &conf);
+    gpio_set_conf(GPIOA, 31, &conf);
 
     while (1) {
-        gpio_set(GPIOA, 10);
-        for (u32 i = 0; i < 1000000; i++) {
-            asm("nop");
-        }
         gpio_clear(GPIOA, 10);
-        for (u32 i = 0; i < 1000000; i++) {
+        gpio_set(GPIOA, 31);
+        for (u32 i = 0; i < 5000000; i++) {
             asm("nop");
         }
-
-
+        gpio_clear(GPIOA, 31);
+        gpio_set(GPIOA, 10);
+        for (u32 i = 0; i < 5000000; i++) {
+            asm("nop");
+        }
     }
     
 }
