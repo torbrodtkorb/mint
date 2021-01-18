@@ -5,6 +5,8 @@
 // PA10, PB1, PA31
 void main(void)
 {
+    clk_init();
+
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
     
@@ -31,5 +33,4 @@ void main(void)
             asm("nop");
         }
     }
-    
 }

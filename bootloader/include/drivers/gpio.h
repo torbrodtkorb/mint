@@ -22,11 +22,22 @@ enum gpio_drive {
     GPIO_HIGH
 };
 
+enum gpio_func {
+    GPIO_FUNC_A = 1,
+    GPIO_FUNC_B,
+    GPIO_FUNC_C,
+    GPIO_FUNC_D,
+    GPIO_FUNC_E,
+    GPIO_FUNC_F,
+    GPIO_FUNC_G
+};
 struct gpio_conf {
     enum gpio_dir dir;
     enum gpio_pull pull;
     enum gpio_drive drive;
 };
+
+void gpio_set_function(struct gpio_reg* port, u32 pin, enum gpio_func func);
 
 void gpio_set_conf(struct gpio_reg* port, u32 pin, struct gpio_conf* conf);
 

@@ -27,6 +27,16 @@ void gpio_set_conf(struct gpio_reg* port, u32 pin, struct gpio_conf* conf) {
     port->cfgr = reg;
 }
 
+// Set fuinction on an GPIO. This determens witch peripheral that can contoll 
+// a pin 
+void gpio_set_function(struct gpio_reg* port, u32 pin, enum gpio_func func) {
+    // Apply configuration only on the given pin
+    mask_pin(port, pin);
+    
+    u32 reg = port->cfgr & ~(0b111 << 0);
+    port->cfgr = reg | (func << 0);
+}
+
 // Drives the given pin to VCC
 void gpio_set(struct gpio_reg* port, u32 pin) {
     port->sodr = (1 << pin);
@@ -36,3 +46,4 @@ void gpio_set(struct gpio_reg* port, u32 pin) {
 void gpio_clear(struct gpio_reg* port, u32 pin) {
     port->codr = (1 << pin);
 }
+
