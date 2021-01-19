@@ -1,11 +1,17 @@
 #include <mint/types.h>
 #include <drivers/clk.h>
 #include <drivers/gpio.h>
+#include <drivers/print.h>
 
 // PA10, PB1, PA31
 void main(void)
 {
     clk_init();
+    print_init();
+
+u32 tmp = 56;
+
+
 
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
@@ -32,5 +38,6 @@ void main(void)
         for (u32 i = 0; i < 5000000; i++) {
             asm("nop");
         }
+        print("hei\n");
     }
 }
