@@ -17,7 +17,7 @@ struct wdt_reg {
     __r u32 sr;
 };
 
-#define WDT ((struct wdt_reg *)0xF8048040)
+#define WDT_REG ((struct wdt_reg *)0xF8048040)
 
 // parallel input output controller registers 
 struct gpio_reg {
@@ -37,10 +37,10 @@ struct gpio_reg {
     __w u32 iofr;
 };
 
-#define GPIOA ((struct gpio_reg *)0xFC038000)
-#define GPIOB ((struct gpio_reg *)0xFC038040)
-#define GPIOC ((struct gpio_reg *)0xFC038080)
-#define GPIOD ((struct gpio_reg *)0xFC0380C0)
+#define GPIOA_REG ((struct gpio_reg *)0xFC038000)
+#define GPIOB_REG ((struct gpio_reg *)0xFC038040)
+#define GPIOC_REG ((struct gpio_reg *)0xFC038080)
+#define GPIOD_REG ((struct gpio_reg *)0xFC0380C0)
 
 // UART registers 
 struct uart_reg {
@@ -59,11 +59,11 @@ struct uart_reg {
     _rw u32 wpmr;
 };
 
-#define UART0 ((struct uart_reg *)0xF801C000)
-#define UART1 ((struct uart_reg *)0xF8020000)
-#define UART2 ((struct uart_reg *)0xF8024000)
-#define UART3 ((struct uart_reg *)0xFC008000)
-#define UART4 ((struct uart_reg *)0xFC00C000)
+#define UART0_REG ((struct uart_reg *)0xF801C000)
+#define UART1_REG ((struct uart_reg *)0xF8020000)
+#define UART2_REG ((struct uart_reg *)0xF8024000)
+#define UART3_REG ((struct uart_reg *)0xFC008000)
+#define UART4_REG ((struct uart_reg *)0xFC00C000)
 
 // power management controller registers 
 struct pmc_reg {
@@ -120,7 +120,7 @@ struct pmc_reg {
     _rw u32 audio_pll1;
 };
 
-#define PMC ((struct pmc_reg *)0xF0014000)
+#define PMC_REG_REG ((struct pmc_reg *)0xF0014000)
 
 // peridic interval timer registers 
 struct pit_reg {
@@ -130,7 +130,7 @@ struct pit_reg {
     __r u32 piir;
 };
 
-#define PIT ((struct pit_reg *)0xF8048030)
+#define PIT_REG ((struct pit_reg *)0xF8048030)
 
 // advanced interrupt controller registers 
 struct apic_reg {
@@ -161,8 +161,8 @@ struct apic_reg {
     __r u32 wpsr;
 };
 
-#define APIC ((struct apic_reg *)0xFC020000)
-#define SAPIC ((struct apic_reg *)0xF803C000)
+#define APIC_REG ((struct apic_reg *)0xFC020000)
+#define SAPIC_REG ((struct apic_reg *)0xF803C000)
 
 // mmc registers 
 struct mmc_reg {
@@ -228,8 +228,8 @@ struct mmc_reg {
     _rw u32 calcr;
 };
 
-#define MMC0 ((struct mmc_reg *)0xA0000000)
-#define MMC1 ((struct mmc_reg *)0xB0000000)
+#define MMC0_REG ((struct mmc_reg *)0xA0000000)
+#define MMC1_REG ((struct mmc_reg *)0xB0000000)
 
 // DDR registers 
 struct ddr_reg {
@@ -265,7 +265,7 @@ struct ddr_reg {
     __r u32 wpsr;
 };
 
-#define DDR ((struct ddr_reg *)0xF000C000)
+#define DDR_REG ((struct ddr_reg *)0xF000C000)
 
 struct matrix_pri {
     _rw u32 a;
@@ -300,8 +300,8 @@ struct matrix_reg {
     _rw u32 spselr3;
 };
 
-#define H32MX ((struct matrix_reg *)0xFC03C000)
-#define H64MX ((struct matrix_reg *)0xF0018000)
+#define H32MX_REG ((struct matrix_reg *)0xFC03C000)
+#define H64MX_REG ((struct matrix_reg *)0xF0018000)
 
 // special function register 
 struct sfr_reg {
@@ -328,7 +328,7 @@ struct sfr_reg {
     _rw u32 qspiclk;
 };
 
-#define SFR ((struct sfr_reg *)0xF8030000)
+#define SFR_REG ((struct sfr_reg *)0xF8030000)
 
 // reset controller registers 
 struct reset_reg {
@@ -337,7 +337,7 @@ struct reset_reg {
     _rw u32 mr;
 };
 
-#define RST ((struct reset_reg *)0xF8048000)
+#define RST_REG ((struct reset_reg *)0xF8048000)
 
 // l2 cache controller register 
 struct l2cache_reg {
@@ -385,7 +385,7 @@ struct l2cache_reg {
     _rw u32 powcr;
 };
 
-#define L2CAHCE ((struct l2cache_reg *)0x00A00000)
+#define L2CAHCE_REG ((struct l2cache_reg *)0x00A00000)
 
 /// true random number generator
 struct trng_reg {
@@ -399,7 +399,7 @@ struct trng_reg {
     __r u32 odata;
 };
 
-#define TRNG ((struct trng_reg *)0xFC01C000)
+#define TRNG_REG ((struct trng_reg *)0xFC01C000)
 
 /// timer channel registers
 struct timer_channel_reg {
@@ -433,8 +433,8 @@ struct timer_reg {
     _rw u32 wpmr;
 };
 
-#define TIMER0 ((struct timer_reg *)0xF800C000)
-#define TIMER1 ((struct timer_reg *)0xF8010000)
+#define TIMER0_REG ((struct timer_reg *)0xF800C000)
+#define TIMER1_REG ((struct timer_reg *)0xF8010000)
 
 #define DMA_CHANNELS 16
 
@@ -478,8 +478,8 @@ struct dma_reg {
     } channel[DMA_CHANNELS];
 };
 
-#define DMA0 ((struct dma_reg *)0xF0010000)
-#define DMA1 ((struct dma_reg *)0xF0004000)
+#define DMA0_REG ((struct dma_reg *)0xF0010000)
+#define DMA1_REG ((struct dma_reg *)0xF0004000)
 
 /// spi registers
 struct spi_reg {
@@ -506,8 +506,8 @@ struct spi_reg {
     __r u32 wpsr;
 };
 
-#define SPI0 ((struct spi_reg *)0xF8000000)
-#define SPI1 ((struct spi_reg *)0xFC000000)
+#define SPI0_REG ((struct spi_reg *)0xF8000000)
+#define SPI1_REG ((struct spi_reg *)0xFC000000)
 
 /// flexcom registers only implemention uart mode
 struct flexcom_reg {
@@ -530,11 +530,11 @@ struct flexcom_reg {
     _rw u32 u_ttgr;
 };
 
-#define FLEX0 ((struct flexcom_reg *)0xF8034000)
-#define FLEX1 ((struct flexcom_reg *)0xF8038000)
-#define FLEX2 ((struct flexcom_reg *)0xFC010000)
-#define FLEX3 ((struct flexcom_reg *)0xFC014000)
-#define FLEX4 ((struct flexcom_reg *)0xFC018000)
+#define FLEX0_REG ((struct flexcom_reg *)0xF8034000)
+#define FLEX1_REG ((struct flexcom_reg *)0xF8038000)
+#define FLEX2_REG ((struct flexcom_reg *)0xFC010000)
+#define FLEX3_REG ((struct flexcom_reg *)0xFC014000)
+#define FLEX4_REG ((struct flexcom_reg *)0xFC018000)
 
 /// lcd control registers
 struct lcd_ctrl {
@@ -611,7 +611,7 @@ struct lcd_reg {
     _rw u32 heoclut[256];
 };
 
-#define LCD ((struct lcd_reg *)0xF0000000)
+#define LCD_REG ((struct lcd_reg *)0xF0000000)
 
 struct gmac_reg {
     _rw u32 ncr;
@@ -636,10 +636,12 @@ struct gmac_reg {
     __r u32 reserved0[13];
     _rw u32 hrb;
     _rw u32 hrt;
+
     struct {
         _rw u32 btm;
         _rw u32 top;
     } sa[4];
+
     _rw u32 tidm[4];
     _rw u32 wol;
     _rw u32 ipgs;
@@ -753,6 +755,6 @@ struct gmac_reg {
     } st2[24];
 };
 
-#define GMAC ((struct gmac_reg *)0xF8008000)
+#define GMAC_REG ((struct gmac_reg *)0xF8008000)
 
 #endif

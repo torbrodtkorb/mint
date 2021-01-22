@@ -10,3 +10,6 @@ DEPS += drivers/print.h
 
 DEPS += mint/regmap.h
 DEPS += mint/types.h
+
+DEPS += lib/sprint.h
+

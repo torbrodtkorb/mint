@@ -6,14 +6,59 @@ static u32 matrix_32_freq;
 
 // Initializes clk frequency
 void clk_init(void) {
-    matrix_32_freq = 12000000;
-    matrix_64_freq = 12000000;
-}
+    //
+    struct pmc_reg* const hw = PMC_REG_REG;
+    u32 reg;
+    // Enable clock source 12 Mhz
+    reg = hw->mor & ~((0xFF << 16) | (1 << 4) | (1 << 6));
+    hw->mor = reg | (1 << 3) | (1 << 5) | 0x370000;
+    
+    // Wait for the PC to start
+    while ((hw->sr & (1 << 17)) == 0);
+    
+    // Set master clock to MAIN CLOCK
+    reg = hw->mckr & ~0b11;
+    hw->mckr = reg | 0b1;
 
+    // wait for the swith to complete
+    while ((hw->sr & (1 << 3)) == 0);
+    
+    // Disable the PLL to avoid overclocking
+    hw->pllar &= ~(0b1 | (0x3F << 18));
+
+    // Select clock source (MAIN CLOCK)
+    reg = hw->mor & ~((0xFF << 16) | (1 << 4) | (1 << 6) | (1 << 24));
+    hw->mor = reg | 0x370000;
+
+    while ((hw->sr & (1 << 16)) == 0);
+
+    // Configurate PLLA to 12 Mhz x 83 = 996 Mhz
+    hw->pllar = (1 << 29) | (82 << 18) | (0x3F << 8) | 0x1;
+
+    // wait for PLLA configuration to complete
+    while ((hw->sr & (1 << 1)) == 0);
+
+    // Set the prescaler, PLL div and H32MX div
+    reg = hw->mckr & ~(0b111 << 4);
+    hw->mckr = reg | (1 << 12) | (1 << 24);
+    while ((hw->sr & (1 << 3)) == 0);
+
+    reg = hw->mckr & ~(0b11 << 8);
+    hw->mckr = reg | (3 << 8);
+    while ((hw->sr & (1 << 3)) == 0);
+
+    reg = hw->mckr & ~0b11;
+    hw->mckr = reg | 2;
+    while ((hw->sr & (1 << 3)) == 0);
+
+    // Update the frequency variables
+    matrix_32_freq = 83000000;
+    matrix_64_freq = 166000000;
+}
 // Enables the peripheral clock that corresponds with the given PID
 void clk_peripheral_enable(u32 pid) {
     // Get the hardware
-    struct pmc_reg* const hw = PMC;
+    struct pmc_reg* const hw = PMC_REG_REG;
 
     if (pid < 2) { return; }
 
@@ -27,7 +72,7 @@ void clk_peripheral_enable(u32 pid) {
 // Disables the peripheral clock that corresponds with the given PID
 void clk_peripheral_disable(u32 pid) {
     // Get the hardware
-    struct pmc_reg* const hw = PMC;
+    struct pmc_reg* const hw = PMC_REG_REG;
     
     if (pid < 2) { return; }
 

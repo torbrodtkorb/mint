@@ -33,6 +33,7 @@ void gpio_set_function(struct gpio_reg* port, u32 pin, enum gpio_func func) {
     // Apply configuration only on the given pin
     mask_pin(port, pin);
     
+    // Set the right gpio function
     u32 reg = port->cfgr & ~(0b111 << 0);
     port->cfgr = reg | (func << 0);
 }

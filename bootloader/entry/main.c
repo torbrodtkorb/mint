@@ -9,10 +9,6 @@ void main(void)
     clk_init();
     print_init();
 
-u32 tmp = 56;
-
-
-
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
     
@@ -25,19 +21,19 @@ u32 tmp = 56;
 
 
     // Turn on LED
-    gpio_set_conf(GPIOA, 31, &conf);
+    gpio_set_conf(GPIOA_REG, 31, &conf);
 
     while (1) {
-        gpio_clear(GPIOA, 10);
-        gpio_set(GPIOA, 31);
-        for (u32 i = 0; i < 5000000; i++) {
+        gpio_clear(GPIOA_REG, 10);
+        gpio_set(GPIOA_REG, 31);
+        for (u32 i = 0; i < 500000; i++) {
             asm("nop");
         }
-        gpio_clear(GPIOA, 31);
-        gpio_set(GPIOA, 10);
-        for (u32 i = 0; i < 5000000; i++) {
+        gpio_clear(GPIOA_REG, 31);
+        gpio_set(GPIOA_REG, 10);
+        for (u32 i = 0; i < 500000; i++) {
             asm("nop");
         }
-        print("hei\n");
+        print("Dette eren liten test\n");
     }
 }
