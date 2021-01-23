@@ -34,6 +34,6 @@ void main(void)
         for (u32 i = 0; i < 500000; i++) {
             asm("nop");
         }
-        print("Dette eren liten test\n");
+        print("Dette er en liten test%10s\n", "feeem");
     }
 }
