@@ -19,6 +19,9 @@ void print(const char* data, ...) {
 
     const char* ptr = print_buf;
     while (count--) {
+        if (*ptr == '\n') {
+            uart_transmit_char(UART1_REG, '\r');
+        }
         uart_transmit_char(UART1_REG, *ptr++);
     }
 }

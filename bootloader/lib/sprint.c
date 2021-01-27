@@ -2,13 +2,13 @@
 
 #include <lib/sprint.h>
 
-#define FLAG_MINUS 0x01
-#define FLAG_PLUS  0x02
-#define FLAG_SPACE 0x04
-#define FLAG_HASH  0x08
-#define FLAG_NULL  0x10
-
-#define TYPE_LITTLE 0x20
+#define FLAG_MINUS  0x01
+#define FLAG_PLUS   0x02
+#define FLAG_SPACE  0x04
+#define FLAG_HASH   0x08
+#define FLAG_NULL   0x10
+#define FLAG_LITTLE 0x20
+#define FLAG_SIGN   0x40
 
 // This formats a given string as places the given result in a buffer
 u32 sprint(const char* data, char* buf, u32 max_size, va_list arg) {
@@ -52,6 +52,7 @@ u32 sprint(const char* data, char* buf, u32 max_size, va_list arg) {
         }
 
         // Parse the type field
+        u32 base = 0;
         const char* ptr;
         switch (*data) {
             case 's':
@@ -110,6 +111,59 @@ u32 sprint(const char* data, char* buf, u32 max_size, va_list arg) {
                         }
                     }
                 }
+                continue;
+            
+            case 'c':
+                char c = (char)va_arg(arg, char);
+                if (buf_size >= max_size) {
+                    // Overflow
+                    return buf_size;
+                }
+                *buf++ = c;
+                buf_size++;
+                continue;
+
+            case '%':
+                if (buf_size >= max_size) {
+                    // Overflow
+                    return buf_size;
+                }
+                *buf++ = '%';
+                buf_size++;
+                continue;
+
+            case 'p':
+                flags |= FLAG_LITTLE;
+            
+            case 'P':
+                flags |= FLAG_HASH;
+                size = 8;
+                base = 16;
+                break;
+            
+            case 'i':
+                flags |= FLAG_SIGN;
+
+            case 'd':
+                base = 10;
+                break;
+
+            case 'x':
+                flags |= FLAG_LITTLE;
+
+            case 'X':
+                base = 16;
+                break;
+            
+            case 'b':
+
+            case 'B':
+                base = 2;
+                break;
+            
+            default:
+                data--;
+                continue;
         }
 
     }
