@@ -6,6 +6,6 @@
 #include<mint/types.h>
 #include <stdarg.h>
 
-u32 sprint(const char* data, char* buf, u32 max_size, va_list arg);
+u32 sprint(const char* data, char* buf, u32 len, va_list arg);
 
 #endif

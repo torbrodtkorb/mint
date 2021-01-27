@@ -2,170 +2,65 @@
 
 #include <lib/sprint.h>
 
-#define FLAG_MINUS  0x01
-#define FLAG_PLUS   0x02
-#define FLAG_SPACE  0x04
-#define FLAG_HASH   0x08
-#define FLAG_NULL   0x10
-#define FLAG_LITTLE 0x20
-#define FLAG_SIGN   0x40
+#define FLAG_LEFT        0x0010
+#define FLAG_FORCE_SIGN  0x0020
+#define FLAG_IGNORE_SIGN 0x0040
+#define FLAG_PREFIX      0x0080
+#define FLAG_PAD_ZERO    0x0100
+#define FLAG_LOWERCASE   0x0200
+#define FLAG_SIGNED      0x0400
+#define FLAG_STRING      0x0800
+#define FLAG_CHAR        0x0100
+#define FLAG_BRACKET     0x0200
+
+static inline void write_char(char c, char** buf, char* end) {
+    if (*buf < end) {
+        **buf = c;
+        (*buf)++;
+    }
+}
 
 // This formats a given string as places the given result in a buffer
-u32 sprint(const char* data, char* buf, u32 max_size, va_list arg) {
-    u32 buf_size = 0;
+u32 sprint(const char* data, char* buf, u32 len, va_list arg) {
+    // Get a pointer to the char after the buffer
+    char* end = buf + len;
     for (; *data; data++) {
-        if (*data != '%') {
-            if (buf_size >= max_size) {
-                // Buffer overload
-                return buf_size;
-            }
-            *buf++ = *data;
-            buf_size++;
+        if (*data != '{') {
+            write_char(*data, &buf, end);
             continue;
         }
 
-        // If the character starts a format exspression
-        u8 flags = 0;
-        flag_loop:
-        data++;
+        // Parse the flags
+        u16 flags = 0;
 
-        switch (*data) {
-            case '-': flags |= FLAG_MINUS; goto flag_loop;
-            case '+': flags |= FLAG_PLUS;  goto flag_loop;
-            case ' ': flags |= FLAG_SPACE; goto flag_loop;
-            case '#': flags |= FLAG_HASH;  goto flag_loop;
-            case '0': flags |= FLAG_NULL;  goto flag_loop;
+        while (*++data) {
+            if      (*data == '<') flags |= FLAG_LEFT;
+            else if (*data == '+') flags |= FLAG_FORCE_SIGN;
+            else if (*data == ' ') flags |= FLAG_SIGNED;
+            else if (*data == '!') flags |= FLAG_PREFIX;
+            else if (*data == '0') flags |= FLAG_PAD_ZERO;
+            else break;
         }
 
-        // Parse the formal number
-        u32 size_valid = 0;
-        u32 size = 0;
-        if (*data == '*') {
-            size = (u32)va_arg(arg, unsigned int);
-            size_valid = 1;
+        // Skip any delimiter
+        if (*data == ':') {
             data++;
-        } else {
+        }
+
+        // Parse the format number
+        i32 width = -1;
+        if (*data == '_') {
+            width = (i32)va_arg(arg, int);
+            data++;
+        } else if ((*data >= '0') && (*data <= '9')) {
+            width = 0;
             while ((*data >= '0') && (*data <= '9')) {
-                size = size * 10 + (*data++ - '0');
-                size_valid = 1;
+                width = width * 10 + (*data++ - '0');
             }
         }
 
-        // Parse the type field
-        u32 base = 0;
-        const char* ptr;
-        switch (*data) {
-            case 's':
-                ptr = va_arg(arg, char*);
-                if (size_valid == 0) {
-                    while (*ptr) {
-                        if (buf_size >= max_size) {
-                            // Overflow
-                            return buf_size;
-                        }
-                        *buf++ = *ptr++;
-                        buf_size++;
-                    }
-                } else {
-                    u32 pad = size;
-                    for (u32 i = 0; i < size; i++) {
-                        if (ptr[i] == 0) {
-                            break;
-                        }
-                        pad--;
-                    }
-                    size -= pad;
-
-                    // Pad will hold the padding or zero
-                    // Size will hold the total number of bytes to be written
-
-                    if ((flags & FLAG_MINUS) == 0) {
-                        while (pad--) {
-                            if (buf_size >= max_size) {
-                                // Overflow
-                                return buf_size;
-                            }
-                            *buf++ = ' ';
-                            buf_size++;
-                        }
-                    }
-
-                    for (u32 i = 0; i < size; i++) {
-                        if (buf_size >= max_size) {
-                            // Overflow
-                            return buf_size;
-                        }
-                        *buf++ = *ptr++;
-                        buf_size++;
-                    }
-
-                    if (flags & FLAG_MINUS) {
-                        while (1);
-                        while (pad--) {
-                            if (buf_size >= max_size) {
-                                // Overflow
-                                return buf_size;
-                            }
-                            *buf++ = ' ';
-                            buf_size++;
-                        }
-                    }
-                }
-                continue;
-            
-            case 'c':
-                char c = (char)va_arg(arg, char);
-                if (buf_size >= max_size) {
-                    // Overflow
-                    return buf_size;
-                }
-                *buf++ = c;
-                buf_size++;
-                continue;
-
-            case '%':
-                if (buf_size >= max_size) {
-                    // Overflow
-                    return buf_size;
-                }
-                *buf++ = '%';
-                buf_size++;
-                continue;
-
-            case 'p':
-                flags |= FLAG_LITTLE;
-            
-            case 'P':
-                flags |= FLAG_HASH;
-                size = 8;
-                base = 16;
-                break;
-            
-            case 'i':
-                flags |= FLAG_SIGN;
-
-            case 'd':
-                base = 10;
-                break;
-
-            case 'x':
-                flags |= FLAG_LITTLE;
-
-            case 'X':
-                base = 16;
-                break;
-            
-            case 'b':
-
-            case 'B':
-                base = 2;
-                break;
-            
-            default:
-                data--;
-                continue;
-        }
+        
 
     }
-    return buf_size;
+    return buf - (end - len);
 }
