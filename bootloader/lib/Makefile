@@ -1,3 +1,3 @@
 # Makefile for library files
 
-SRC += lib/sprint.c
+SRC += lib/print_format.c

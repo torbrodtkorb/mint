@@ -2,7 +2,7 @@
 
 #include <drivers/print.h>
 #include <drivers/uart.h>
-#include <lib/sprint.h>
+#include <mint/print_format.h>
 
 #define PRINT_BUF_SIZE 512
 static char print_buf[PRINT_BUF_SIZE];
