@@ -2,17 +2,19 @@
 
 #include <lib/sprint.h>
 
-#define FLAG_LEFT        0x0010
-#define FLAG_FORCE_SIGN  0x0020
-#define FLAG_IGNORE_SIGN 0x0040
-#define FLAG_PREFIX      0x0080
-#define FLAG_PAD_ZERO    0x0100
-#define FLAG_LOWERCASE   0x0200
-#define FLAG_SIGNED      0x0400
-#define FLAG_STRING      0x0800
+#define FLAG_LEFT        0x0001
+#define FLAG_FORCE_SIGN  0x0002
+#define FLAG_IGNORE_SIGN 0x0004
+#define FLAG_PREFIX      0x0008
+#define FLAG_PAD_ZERO    0x0010
+#define FLAG_LOWERCASE   0x0020
+#define FLAG_SIGNED      0x0040
+#define FLAG_STRING      0x0080
 #define FLAG_CHAR        0x0100
 #define FLAG_BRACKET     0x0200
 
+// Writes one character to the buf double pointer and increments the buf pointer
+// accordingly. This will ignore the write if the buffer is full
 static inline void write_char(char c, char** buf, char* end) {
     if (*buf < end) {
         **buf = c;
