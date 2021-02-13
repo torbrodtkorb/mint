@@ -81,7 +81,7 @@ debug: $(BUILDDIR)/$(TARGET).elf
 $(BUILDDIR)/%.o: $(TOP)/%.c $(DEPS_GLOBAL)
 	@echo " " CC $(patsubst $(TOP)/%, $(notdir $(TOP))/%, $<)
 	@mkdir -p $(dir $@)
-	@$(CC) $(CFLAGS) $(CPFLAGS) -c $< -o $@
+	@$(CC) $(CPFLAGS) $(CFLAGS) -c $< -o $@
 
 # Rule for compiling the assembly files into object files
 $(BUILDDIR)/%.o: $(TOP)/%.s $(DEPS_GLOBAL)

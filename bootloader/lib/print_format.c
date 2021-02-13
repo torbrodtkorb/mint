@@ -23,7 +23,7 @@ static inline void write_char(char c, char** buf, char* end) {
 }
 
 // This formats a given string as places the given result in a buffer
-u32 sprint(const char* data, char* buf, u32 len, va_list arg) {
+u32 print_format_to_buffer_arg(const char* data, char* buf, u32 len, va_list arg) {
     // Get a pointer to the char after the buffer
     char* end = buf + len;
     for (; *data; data++) {
@@ -38,7 +38,7 @@ u32 sprint(const char* data, char* buf, u32 len, va_list arg) {
         while (*++data) {
             if      (*data == '<') flags |= FLAG_LEFT;
             else if (*data == '+') flags |= FLAG_FORCE_SIGN;
-            else if (*data == ' ') flags |= FLAG_SIGNED;
+            else if (*data == ' ') flags |= FLAG_IGNORE_SIGN;
             else if (*data == '!') flags |= FLAG_PREFIX;
             else if (*data == '0') flags |= FLAG_PAD_ZERO;
             else break;
@@ -109,6 +109,7 @@ u32 sprint(const char* data, char* buf, u32 len, va_list arg) {
                 data--;
                 continue;
         }
+
         // Print a bracket
         if (flags & FLAG_BRACKET) {
             write_char('{', &buf, end);
@@ -126,8 +127,37 @@ u32 sprint(const char* data, char* buf, u32 len, va_list arg) {
                 while (*input) {
                     write_char(*input++, &buf, end);
                 }
+            } else {
+                // Pad holds the number of padding
+                // Num holds the nomber of characters to print from the input buffer 
+                u32 num;
+                for (num = 0; num < width && input[num]; num++);
+                u32 pad = width - num;
+
+                // Pad in front of the string
+                if ((flags & FLAG_LEFT) == 0) {
+                    for (u32 i = 0; i < pad; i++) {
+                    write_char(' ', &buf, end);
+                    }
+                }
+
+                // write the string
+                for (u32 i = 0; i < num; i++) {
+                    write_char(*input++, &buf, end);
+                }
+                
+                // Padd after the string
+                if (flags & FLAG_LEFT) {
+                    for (u32 i = 0; i < pad; i++) {
+                    write_char(' ', &buf, end);
+                    }
+                }
+
+
+
             }
         }
+
         // Skip any end bracket
         if (*data != '}') {
             data--;

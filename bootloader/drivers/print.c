@@ -14,7 +14,7 @@ void print_init(void) {
 void print(const char* data, ...) {
     va_list arg;
     va_start(arg, data);
-    u32 count = sprint(data, print_buf, PRINT_BUF_SIZE, arg);
+    u32 count = print_format_to_buffer_arg(data, print_buf, PRINT_BUF_SIZE, arg);
     va_end(arg);
 
     const char* ptr = print_buf;
