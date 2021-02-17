@@ -34,8 +34,8 @@ void main(void)
         for (u32 i = 0; i < 500000; i++) {
             asm("nop");
         }
-        char len = 10
-        u32 = "hei"
-        print("Dette er en{_:s}\n", len, "hei");
+        u32 i = 1000;
+        char len = 10;
+            print("Dette er en {!<0+:b}\n", 0b00110101);
     }
 }
