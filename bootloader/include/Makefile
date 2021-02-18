@@ -11,4 +11,6 @@ DEPS += drivers/print.h
 DEPS += mint/regmap.h
 DEPS += mint/types.h
 DEPS += mint/print_format.h
+DEPS += mint/list.h
+DEPS += mint/netbuf.h
 

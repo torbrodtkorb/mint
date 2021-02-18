@@ -31,7 +31,7 @@ ASM :=
 include $(TOP)/entry/Makefile
 include $(TOP)/drivers/Makefile
 include $(TOP)/lib/Makefile
-
+include $(TOP)/network/Makefile
 
 # C preprosessor flags
 CPFLAGS := 

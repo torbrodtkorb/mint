@@ -4,7 +4,6 @@
 #include <drivers/clk.h>
 #include <drivers/gpio.h>
 
-
 struct uart_pid_map {
     void* uart;
     u32 pid;
@@ -16,7 +15,6 @@ const struct uart_pid_map uart_map[UART_CNT] = {
     { .uart = UART3_REG, .pid = 56 },
     { .uart = UART4_REG, .pid = 56 },
 };
-
 
 static inline u32 uart_to_pid(struct uart_reg* reg) {
     for (u32 i = 0; i < UART_CNT; i++) {

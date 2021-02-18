@@ -19,7 +19,6 @@ void main(void)
         .pull = GPIO_PULL_NONE
     };
 
-
     // Turn on LED
     gpio_set_conf(GPIOA_REG, 31, &conf);
 

@@ -6,9 +6,9 @@ static u32 matrix_32_freq;
 
 // Initializes clk frequency
 void clk_init(void) {
-    //
     struct pmc_reg* const hw = PMC_REG_REG;
     u32 reg;
+    
     // Enable clock source 12 Mhz
     reg = hw->mor & ~((0xFF << 16) | (1 << 4) | (1 << 6));
     hw->mor = reg | (1 << 3) | (1 << 5) | 0x370000;
@@ -55,6 +55,7 @@ void clk_init(void) {
     matrix_32_freq = 83000000;
     matrix_64_freq = 166000000;
 }
+
 // Enables the peripheral clock that corresponds with the given PID
 void clk_peripheral_enable(u32 pid) {
     // Get the hardware
@@ -69,6 +70,7 @@ void clk_peripheral_enable(u32 pid) {
         hw->pcer1 = (1 << (pid - 32));
     }
 }
+
 // Disables the peripheral clock that corresponds with the given PID
 void clk_peripheral_disable(u32 pid) {
     // Get the hardware

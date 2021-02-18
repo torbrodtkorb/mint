@@ -8,7 +8,7 @@
 #define FLAG_PREFIX      0x0008
 #define FLAG_PAD_ZERO    0x0010
 #define FLAG_LOWERCASE   0x0020
-#define FLAG_SIGNED      0x0040
+#define FLAG_SIGNED      0x0040 
 #define FLAG_STRING      0x0080
 #define FLAG_CHAR        0x0100
 #define FLAG_BRACKET     0x0200
