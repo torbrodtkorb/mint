@@ -3,21 +3,22 @@
 #ifndef NETBUF_H
 #define NETBUF_H
 
-#include<mint/types.h>
-#include<mint/list.h>
+#include <mint/types.h>
+#include <mint/list.h>
 
-struct netbuf {
+typedef struct {
+    // This will hold the entire network packet data
     u8 buf[1500];
     
     u8* ptr;
     u32 len;
 
-    struct list node;
-};
+    List node;
+} Netbuf;
 
-struct netbuf* alloc_netbuf();
+Netbuf* alloc_netbuf();
 
-void free_netbuf(struct netbuf* buf);
+void free_netbuf(Netbuf* buf);
 
 void netbuf_init();
 

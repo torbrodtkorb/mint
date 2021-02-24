@@ -5,10 +5,10 @@
 #define NETBUF_COUNT 32
 
 // Allocate the netbuffers
-static struct netbuf network_buffers[NETBUF_COUNT];
+static Netbuf network_buffers[NETBUF_COUNT];
 
 // List for grouping all the netbuffers together
-static struct list netbuf_list;
+static List netbuf_list;
 
 void netbuf_init() {
     list_init(&netbuf_list);
@@ -17,15 +17,15 @@ void netbuf_init() {
     }
 }
 
-struct netbuf* alloc_netbuf() {
-    struct list* element = list_pop_back(&netbuf_list);
-    struct netbuf* buf = list_get_struct(element, struct netbuf, node);
+Netbuf* alloc_netbuf() {
+    List* element = list_pop_back(&netbuf_list);
+    Netbuf* buf = list_get_struct(element, Netbuf, node);
 
     buf->ptr = buf->buf + 134;
 
     return buf;
 }
 
-void free_netbuf(struct netbuf* buf) {
+void free_netbuf(Netbuf* buf) {
     list_push_front(&buf->node, &netbuf_list);
 }

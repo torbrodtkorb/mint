@@ -5,18 +5,18 @@
 
 #include <mint/types.h>
 
-struct list{
-    struct list* next;
-    struct list* prev;
-};
+typedef struct {
+    List* next;
+    List* prev;
+} List;
 
-static inline void list_init(struct list* list) {
+static inline void list_init(List* list) {
     list->next = list;
     list->prev = list;
 }
 
-static inline void list_insert_between(struct list* node, struct list* before,
-    struct list* after) {
+static inline void list_insert_between(List* node, List* before,
+    List* after) {
 
     node->next = after;
     node->prev = before;
@@ -25,16 +25,16 @@ static inline void list_insert_between(struct list* node, struct list* before,
     after->prev = node;
 }
 
-static inline void list_push_front(struct list* node, struct list* list) {
+static inline void list_push_front(List* node, List* list) {
     list_insert_between(node, list, list->next);
 }
 
-static inline void list_push_back(struct list* node, struct list* list) {
+static inline void list_push_back(List* node, List* list) {
     list_insert_between(node, list->prev, list);
 }
 
-static inline struct list* list_pop_front(struct list* list) {
-    struct list* tmp = list->next;
+static inline List* list_pop_front(List* list) {
+    List* tmp = list->next;
 
     list->next = tmp->next;
     tmp->next->prev = list;    
@@ -42,8 +42,8 @@ static inline struct list* list_pop_front(struct list* list) {
     return tmp;
 }
 
-static inline struct list* list_pop_back(struct list* list) {
-    struct list* tmp = list->prev;
+static inline List* list_pop_back(List* list) {
+    List* tmp = list->prev;
 
     tmp->prev->next = list;
     list->prev = tmp->prev;
