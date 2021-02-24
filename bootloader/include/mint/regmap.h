@@ -613,7 +613,7 @@ struct lcd_reg {
 
 #define LCD_REG ((struct lcd_reg *)0xF0000000)
 
-struct gmac_reg {
+typedef struct {
     _rw u32 ncr;
     _rw u32 ncfgr;
     __r u32 nsr;
@@ -753,8 +753,8 @@ struct gmac_reg {
         _rw u32 cw0;
         _rw u32 cw1;
     } st2[24];
-};
+} NicReg;
 
-#define GMAC_REG ((struct gmac_reg *)0xF8008000)
+#define NIC_REG ((NicReg *)0xF8008000)
 
 #endif

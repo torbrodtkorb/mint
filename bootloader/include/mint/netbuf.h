@@ -9,9 +9,9 @@
 typedef struct {
     // This will hold the entire network packet data
     u8 buf[1500];
+    u32 len;
     
     u8* ptr;
-    u32 len;
 
     List node;
 } Netbuf;

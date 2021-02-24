@@ -10,6 +10,7 @@ static Netbuf network_buffers[NETBUF_COUNT];
 // List for grouping all the netbuffers together
 static List netbuf_list;
 
+// Initiales the netbuffers and adds them to the netbuffer list
 void netbuf_init() {
     list_init(&netbuf_list);
     for (u32 i = 0; i < NETBUF_COUNT; i++) {
@@ -17,6 +18,7 @@ void netbuf_init() {
     }
 }
 
+// This allocates a netbuffer from the netbuffer poool
 Netbuf* alloc_netbuf() {
     List* element = list_pop_back(&netbuf_list);
     Netbuf* buf = list_get_struct(element, Netbuf, node);
@@ -26,6 +28,7 @@ Netbuf* alloc_netbuf() {
     return buf;
 }
 
+// This frees a netbuffer
 void free_netbuf(Netbuf* buf) {
     list_push_front(&buf->node, &netbuf_list);
 }

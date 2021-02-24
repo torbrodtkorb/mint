@@ -2,12 +2,15 @@
 #include <drivers/clk.h>
 #include <drivers/gpio.h>
 #include <drivers/print.h>
+#include <drivers/nic.h>
 
 // PA10, PB1, PA31
 void main(void)
 {
     clk_init();
     print_init();
+    print("ayyt");
+    nic_init();
 
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);

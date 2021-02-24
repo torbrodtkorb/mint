@@ -4,11 +4,14 @@
 #define LIST_H
 
 #include <mint/types.h>
+#include <stddef.h>
 
-typedef struct {
+typedef struct List List;
+
+struct List {
     List* next;
     List* prev;
-} List;
+};
 
 static inline void list_init(List* list) {
     list->next = list;
