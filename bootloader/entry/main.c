@@ -9,8 +9,8 @@ void main(void)
 {
     clk_init();
     print_init();
-    print("ayyt");
     nic_init();
+
 
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
@@ -26,18 +26,6 @@ void main(void)
     gpio_set_conf(GPIOA_REG, 31, &conf);
 
     while (1) {
-        gpio_clear(GPIOA_REG, 10);
-        gpio_set(GPIOA_REG, 31);
-        for (u32 i = 0; i < 500000; i++) {
-            asm("nop");
-        }
-        gpio_clear(GPIOA_REG, 31);
-        gpio_set(GPIOA_REG, 10);
-        for (u32 i = 0; i < 500000; i++) {
-            asm("nop");
-        }
-        u32 i = 1000;
-        char len = 10;
-            print("Dette er en {!<0+:b}\n", 0b00110101);
+
     }
 }
