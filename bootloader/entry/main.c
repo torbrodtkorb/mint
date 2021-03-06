@@ -9,10 +9,12 @@ void main(void)
 {
     clk_init();
     print_init();
+
+    print("check\n");
     
     nic_init();
 
-
+    nic_recive();
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
     

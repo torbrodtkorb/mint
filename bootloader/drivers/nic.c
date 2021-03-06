@@ -9,7 +9,7 @@
 
 #define PHY_ADDR 0
 #define OWNER_DMA 0
-#define OWNER_CPU 0
+#define OWNER_CPU 1
 
 typedef struct {
     union {
@@ -68,14 +68,14 @@ typedef struct {
 
 // This is the main queue
 #define QUEUE0_TX_RING_SIZE 4
-#define QUEUE0_RX_RING_SIZE 4
+#define QUEUE0_RX_RING_SIZE 8
 
 static alignas(8) TransmitDesc queue0_tx_ring[QUEUE0_TX_RING_SIZE];
 static alignas(8) ReceiveDesc queue0_rx_ring[QUEUE0_RX_RING_SIZE];
 
 // Three unused queues
-#define UNUSED_TX_RING_SIZE 4
-#define UNUSED_RX_RING_SIZE 4
+#define UNUSED_TX_RING_SIZE 2
+#define UNUSED_RX_RING_SIZE 2
 
 static alignas(8) TransmitDesc queue1_tx_ring[UNUSED_TX_RING_SIZE];
 static alignas(8) ReceiveDesc queue1_rx_ring[UNUSED_RX_RING_SIZE];
@@ -132,36 +132,47 @@ void init_queues() {
     for (u32 i = 0; i < NUM_QUEUES; i++) {
         Queue* curr = &queues[i];
 
+        // Settup the receive descriptores
         for (u32 ii = 0; ii < curr->rx_size; ii++) {
             ReceiveDesc* desc = &curr->rx[ii];
             
-            // Init RC desc
             desc->status_word = 0;
+            desc->addr_word   = 0;
             desc->owner       = OWNER_DMA;
             desc->wrap        = 0;
-
             
             Netbuf* buf = alloc_netbuf();
 
             if (buf == NULL) {
                 print("Cannot alloocate enough netbuffers for the init ring\n");
             }
-            desc->addr        = (u32)buf->buf >> 2;
+            desc->addr = (u32)buf->buf >> 2;
 
         }
 
         curr->rx[curr->rx_size - 1].wrap = 1;
 
+        // Settup the transmit descriptores
         for (u32 ii = 0; ii < curr->tx_size; ii++) {
             TransmitDesc* desc = &curr->tx[ii];
             
             desc->status_word = 0;
+            desc->addr        = 0;
             desc->owner       = OWNER_CPU;
             desc->wrap        = 0;
+
+            Netbuf* buf = alloc_netbuf();
+
+            if (buf == NULL) {
+                print("Cannot alloocate enough netbuffers for the init ring\n");
+            }
+
+            desc->addr = (u32)buf->buf;
         }
         curr->tx[curr->tx_size - 1].wrap = 1;
     }
 
+    // Sett the base address of the descreptor
     NicReg* regs = NIC_REG;
 
     regs->rbqb = (u32)queue0_rx_ring;
@@ -280,18 +291,48 @@ void nic_init() {
     // Get the hardware base address
     NicReg* regs = NIC_REG;
 
+    // Reset the registers
+    regs->ncr   = 0;
+    regs->ncfgr = 0;
+
+    regs->idr = 0xFFFFFFFF;
+
+    (void)regs->isr;
+
     // Enable the PHY interface
     regs->ncfgr = (3 << 18);
     regs->ncr = (1 << 4);
 
     LinkSetting setting;
     phy_init(&setting);
-    print("Link status D{u} S{u}\n", setting.duplex, setting.speed);
+
+
+    regs->ncfgr |= (1 << 0) | (1 << 1) | (1 << 4);
+    
+    // Choose RMII interface
+    regs->ur = 1;
+
+    // Configure the DMA controller
+    regs->dcfgr = (4 << 0) | (3 << 8) | (1 << 10) | (0x18 << 16);
+
+    // Enable the reciver and transmitter
+    regs->ncr |= (1 << 2) | (0 << 3);
 
 }
 
 Netbuf* nic_recive() {
-return 0;
+    NicReg* regs  = NIC_REG;
+
+    // Wait for a packet
+    u32 reg;
+    do {
+        reg = regs->rsr;
+    }while (reg == 0);
+
+    print("Got status register {r}\n", reg);
+
+
+    return 0;
 }
 
 void nic_send(Netbuf* buf) {
