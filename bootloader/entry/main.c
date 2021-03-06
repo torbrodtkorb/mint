@@ -9,6 +9,7 @@ void main(void)
 {
     clk_init();
     print_init();
+    
     nic_init();
 
 
