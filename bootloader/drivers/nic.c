@@ -66,6 +66,9 @@ typedef struct {
     };
 } TransmitDesc;
 
+u32 receive_index;
+u32 transmit_index;
+
 // This is the main queue
 #define QUEUE0_TX_RING_SIZE 4
 #define QUEUE0_RX_RING_SIZE 8
@@ -129,6 +132,10 @@ Queue queues[NUM_QUEUES] = {
 
 // Init transmit and recive buffers
 void init_queues() {
+
+    receive_index = 0;
+    transmit_index = 0;
+    
     for (u32 i = 0; i < NUM_QUEUES; i++) {
         Queue* curr = &queues[i];
 
@@ -284,10 +291,6 @@ void nic_init() {
     clk_peripheral_enable(5);
 
 
-    // Init the netbuffer interface
-    netbuf_init();
-    init_queues();
-
     // Get the hardware base address
     NicReg* regs = NIC_REG;
 
@@ -306,6 +309,10 @@ void nic_init() {
     LinkSetting setting;
     phy_init(&setting);
 
+    // Init the netbuffer interface
+    netbuf_init();
+    init_queues();
+
 
     regs->ncfgr |= (1 << 0) | (1 << 1) | (1 << 4);
     
@@ -321,16 +328,24 @@ void nic_init() {
 }
 
 Netbuf* nic_recive() {
-    NicReg* regs  = NIC_REG;
+    ReceiveDesc* desc = &queue0_rx_ring[receive_index];
 
-    // Wait for a packet
-    u32 reg;
-    do {
-        reg = regs->rsr;
-    }while (reg == 0);
+    if (desc->owner == OWNER_CPU) {
+        receive_index++;
+        if (receive_index & QUEUE0_RX_RING_SIZE) {
+            receive_index = 0;
+        }
 
-    print("Got status register {r}\n", reg);
+        Netbuf*  result = (Netbuf *)((desc->addr << 2) - offsetof(Netbuf, buf));
+        result->len = desc->len;
 
+        Netbuf* new = alloc_netbuf();
+        
+        desc->addr = (u32)new->buf >> 2;
+        desc->owner = OWNER_DMA;
+
+        return result;
+    }
 
     return 0;
 }

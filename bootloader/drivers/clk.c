@@ -66,8 +66,10 @@ void clk_peripheral_enable(u32 pid) {
     // Two registers are used to enables the peripheral clock
     if (pid < 32) {
         hw->pcer0 = (1 << pid);
+        while ((hw->pcsr0 & (1 << pid)) == 0);
     } else if (pid < 64) {
         hw->pcer1 = (1 << (pid - 32));
+        while ((hw->pcsr1 & (1 << (pid - 32))) == 0);
     }
 }
 

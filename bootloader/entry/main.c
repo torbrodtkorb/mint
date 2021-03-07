@@ -10,11 +10,23 @@ void main(void)
     clk_init();
     print_init();
 
-    print("check\n");
+    print("This is a little test\n");
     
     nic_init();
 
-    nic_recive();
+    while (1) {
+        Netbuf* netbuf = nic_recive();
+        if (netbuf) {
+            print("Got packet => ");
+            for (u32 i = 0; i < netbuf->len; i++) {
+                print("{c} ", netbuf->buf[i]);
+            }
+            print("\n\n");
+
+            free_netbuf(netbuf);
+        }
+    }
+
     // Enable the clock of the PIO module
     clk_peripheral_enable(18);
     
