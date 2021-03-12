@@ -23,7 +23,7 @@ Netbuf* alloc_netbuf() {
     List* element = list_pop_back(&netbuf_list);
     Netbuf* buf = list_get_struct(element, Netbuf, node);
 
-    buf->ptr = buf->buf + 134;
+    buf->pointer = buf->buf + 134;
 
     return buf;
 }

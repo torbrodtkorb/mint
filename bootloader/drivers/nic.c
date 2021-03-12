@@ -147,14 +147,6 @@ void init_queues() {
             desc->addr_word   = 0;
             desc->owner       = OWNER_DMA;
             desc->wrap        = 0;
-            
-            Netbuf* buf = alloc_netbuf();
-
-            if (buf == NULL) {
-                print("Cannot alloocate enough netbuffers for the init ring\n");
-            }
-            desc->addr = (u32)buf->buf >> 2;
-
         }
 
         curr->rx[curr->rx_size - 1].wrap = 1;
@@ -327,21 +319,25 @@ void nic_init() {
 
 }
 
+// Tries to receive a net buffer
 Netbuf* nic_recive() {
     ReceiveDesc* desc = &queue0_rx_ring[receive_index];
 
+    print("Register => {b}\n", NIC_REG->rsr);
     if (desc->owner == OWNER_CPU) {
         receive_index++;
         if (receive_index & QUEUE0_RX_RING_SIZE) {
             receive_index = 0;
         }
 
-        Netbuf*  result = (Netbuf *)((desc->addr << 2) - offsetof(Netbuf, buf));
+        Netbuf* result = (Netbuf *)((desc->addr << 2) - offsetof(Netbuf, buf));
         result->len = desc->len;
+        result->pointer = result->buf;
 
+        // Replace with a new netbuffer
         Netbuf* new = alloc_netbuf();
         
-        desc->addr = (u32)new->buf >> 2;
+        desc->addr  = (u32)new->buf >> 2;
         desc->owner = OWNER_DMA;
 
         return result;
@@ -351,5 +347,32 @@ Netbuf* nic_recive() {
 }
 
 void nic_send(Netbuf* buf) {
+    TransmitDesc* desc = &queue0_tx_ring[transmit_index];
 
+    // Get the hardware base address
+    NicReg* regs = NIC_REG;
+    if (regs->tsr & ((1 << 8) | (1 << 4) | (1 << 2))) {
+        print ("error in the transmitt direction\n");
+    }
+    regs->tsr = regs->tsr; 
+    // Whait for the DMA to complete.
+    while (desc->owner == OWNER_DMA);
+
+    if (desc->addr) {
+        Netbuf* old_netbuf = (Netbuf *)(desc->addr - offsetof(Netbuf, buf));
+        free_netbuf(old_netbuf);
+    }
+
+    desc->addr       = (u32)buf->buf;
+    desc->len        = buf->len;
+    desc->last       = 1;
+    desc->ignore_crc = 0;
+    desc->owner      = OWNER_DMA;
+
+    // Poke the DMA controller
+    regs->ncr |= (1 << 9);
+
+    if (++transmit_index == QUEUE0_TX_RING_SIZE) {
+        transmit_index = 0;
+    }
 }
