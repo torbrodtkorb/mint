@@ -147,6 +147,13 @@ void init_queues() {
             desc->addr_word   = 0;
             desc->owner       = OWNER_DMA;
             desc->wrap        = 0;
+
+             Netbuf* buf = alloc_netbuf();
+
+            if (buf == NULL) {
+                print("Cannot alloocate enough netbuffers for the init ring\n");
+            }
+            desc->addr = (u32)buf->buf >> 2;
         }
 
         curr->rx[curr->rx_size - 1].wrap = 1;
@@ -159,14 +166,6 @@ void init_queues() {
             desc->addr        = 0;
             desc->owner       = OWNER_CPU;
             desc->wrap        = 0;
-
-            Netbuf* buf = alloc_netbuf();
-
-            if (buf == NULL) {
-                print("Cannot alloocate enough netbuffers for the init ring\n");
-            }
-
-            desc->addr = (u32)buf->buf;
         }
         curr->tx[curr->tx_size - 1].wrap = 1;
     }
@@ -315,7 +314,7 @@ void nic_init() {
     regs->dcfgr = (4 << 0) | (3 << 8) | (1 << 10) | (0x18 << 16);
 
     // Enable the reciver and transmitter
-    regs->ncr |= (1 << 2) | (0 << 3);
+    regs->ncr |= (1 << 2) | (1 << 3);
 
 }
 
@@ -323,7 +322,6 @@ void nic_init() {
 Netbuf* nic_recive() {
     ReceiveDesc* desc = &queue0_rx_ring[receive_index];
 
-    print("Register => {b}\n", NIC_REG->rsr);
     if (desc->owner == OWNER_CPU) {
         receive_index++;
         if (receive_index & QUEUE0_RX_RING_SIZE) {
@@ -356,6 +354,9 @@ void nic_send(Netbuf* buf) {
     }
     regs->tsr = regs->tsr; 
     // Whait for the DMA to complete.
+    if (desc->owner == OWNER_DMA) {
+        print("Saturate\n");
+    }
     while (desc->owner == OWNER_DMA);
 
     if (desc->addr) {
@@ -366,7 +367,7 @@ void nic_send(Netbuf* buf) {
     desc->addr       = (u32)buf->buf;
     desc->len        = buf->len;
     desc->last       = 1;
-    desc->ignore_crc = 0;
+    desc->ignore_crc = 1;
     desc->owner      = OWNER_DMA;
 
     // Poke the DMA controller
