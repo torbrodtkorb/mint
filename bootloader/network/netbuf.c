@@ -24,6 +24,7 @@ Netbuf* alloc_netbuf() {
     Netbuf* buf = list_get_struct(element, Netbuf, node);
 
     buf->pointer = buf->buf + 134;
+    buf->lenght = 0;
 
     return buf;
 }

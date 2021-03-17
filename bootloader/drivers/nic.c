@@ -66,30 +66,29 @@ typedef struct {
     };
 } TransmitDesc;
 
+// This holds the current index into the reciver and transmit rings
 u32 receive_index;
 u32 transmit_index;
 
-// This is the main queue
-#define QUEUE0_TX_RING_SIZE 4
+// For the main queue
+#define QUEUE0_TX_RING_SIZE 8
 #define QUEUE0_RX_RING_SIZE 8
 
-static alignas(8) TransmitDesc queue0_tx_ring[QUEUE0_TX_RING_SIZE];
-static alignas(8) ReceiveDesc queue0_rx_ring[QUEUE0_RX_RING_SIZE];
-
-// Three unused queues
+// For the unused queues
 #define UNUSED_TX_RING_SIZE 2
 #define UNUSED_RX_RING_SIZE 2
 
+static alignas(8) TransmitDesc queue0_tx_ring[QUEUE0_TX_RING_SIZE];
+static alignas(8) ReceiveDesc  queue0_rx_ring[QUEUE0_RX_RING_SIZE];
+
 static alignas(8) TransmitDesc queue1_tx_ring[UNUSED_TX_RING_SIZE];
-static alignas(8) ReceiveDesc queue1_rx_ring[UNUSED_RX_RING_SIZE];
+static alignas(8) ReceiveDesc  queue1_rx_ring[UNUSED_RX_RING_SIZE];
 
 static alignas(8) TransmitDesc queue2_tx_ring[UNUSED_TX_RING_SIZE];
-static alignas(8) ReceiveDesc queue2_rx_ring[UNUSED_RX_RING_SIZE];
-
+static alignas(8) ReceiveDesc  queue2_rx_ring[UNUSED_RX_RING_SIZE];
+ 
 static alignas(8) TransmitDesc queue3_tx_ring[UNUSED_TX_RING_SIZE];
-static alignas(8) ReceiveDesc queue3_rx_ring[UNUSED_RX_RING_SIZE];
-
-#define NUM_QUEUES 4
+static alignas(8) ReceiveDesc  queue3_rx_ring[UNUSED_RX_RING_SIZE];
 
 typedef struct {
     ReceiveDesc* rx;
@@ -98,6 +97,8 @@ typedef struct {
     TransmitDesc* tx;
     u32 tx_size;
 } Queue;
+
+#define NUM_QUEUES 4
 
 Queue queues[NUM_QUEUES] = {
     {
@@ -133,7 +134,7 @@ Queue queues[NUM_QUEUES] = {
 // Init transmit and recive buffers
 void init_queues() {
 
-    receive_index = 0;
+    receive_index =  0;
     transmit_index = 0;
     
     for (u32 i = 0; i < NUM_QUEUES; i++) {
@@ -153,6 +154,7 @@ void init_queues() {
             if (buf == NULL) {
                 print("Cannot alloocate enough netbuffers for the init ring\n");
             }
+
             desc->addr = (u32)buf->buf >> 2;
         }
 
@@ -167,6 +169,7 @@ void init_queues() {
             desc->owner       = OWNER_CPU;
             desc->wrap        = 0;
         }
+
         curr->tx[curr->tx_size - 1].wrap = 1;
     }
 
@@ -185,10 +188,6 @@ void init_queues() {
     regs->rbqbapq[2] = (u32)queue3_rx_ring;
     regs->tbqbapq[2] = (u32)queue3_tx_ring;
 }
-
-
-
-
 
 // Both the register index and the phy address is between 0 and 31
 static u16 phy_read(u8 reg, u8 phy) {
@@ -225,7 +224,7 @@ typedef struct {
     DuplexType duplex;
 } LinkSetting;
 
-// Configures the PHY
+// This waits for the autonegotiation to compleet and returns the new link status
 static void phy_init(LinkSetting* setting) {
 
     // Set our capability to half and full duplex, 10 and 100 Mbit/sek
@@ -240,8 +239,6 @@ static void phy_init(LinkSetting* setting) {
 
     // Wait for autoneg to complete
     while ((phy_read(1, PHY_ADDR) & (1 << 5)) == 0);
-
-    print("Autoneg cloplete\n");
 
     // Read LINK PARTNER capability
     reg = phy_read(5, PHY_ADDR);
@@ -263,6 +260,8 @@ static void phy_init(LinkSetting* setting) {
             setting->duplex = HALF_DUPLEX;
         }
     }
+
+    print("Autoneg complete\n");
 }
 
 void nic_init() {
@@ -280,7 +279,6 @@ void nic_init() {
 
     // Enable the clock
     clk_peripheral_enable(5);
-
 
     // Get the hardware base address
     NicReg* regs = NIC_REG;
@@ -304,8 +302,7 @@ void nic_init() {
     netbuf_init();
     init_queues();
 
-
-    regs->ncfgr |= (1 << 0) | (1 << 1) | (1 << 4);
+    regs->ncfgr |= (setting.speed << 0) | (setting.duplex << 1) | (1 << 4);
     
     // Choose RMII interface
     regs->ur = 1;
@@ -315,7 +312,6 @@ void nic_init() {
 
     // Enable the reciver and transmitter
     regs->ncr |= (1 << 2) | (1 << 3);
-
 }
 
 // Tries to receive a net buffer
@@ -323,13 +319,9 @@ Netbuf* nic_recive() {
     ReceiveDesc* desc = &queue0_rx_ring[receive_index];
 
     if (desc->owner == OWNER_CPU) {
-        receive_index++;
-        if (receive_index & QUEUE0_RX_RING_SIZE) {
-            receive_index = 0;
-        }
-
         Netbuf* result = (Netbuf *)((desc->addr << 2) - offsetof(Netbuf, buf));
-        result->len = desc->len;
+
+        result->lenght  = desc->len;
         result->pointer = result->buf;
 
         // Replace with a new netbuffer
@@ -338,11 +330,18 @@ Netbuf* nic_recive() {
         desc->addr  = (u32)new->buf >> 2;
         desc->owner = OWNER_DMA;
 
+        if (++receive_index == QUEUE0_RX_RING_SIZE) {
+            receive_index = 0;
+        }
+
         return result;
     }
 
     return 0;
 }
+
+// This is used to track the start adress of the transmit netbuffer
+Netbuf* netbuf_start_adress[QUEUE0_TX_RING_SIZE];
 
 void nic_send(Netbuf* buf) {
     TransmitDesc* desc = &queue0_tx_ring[transmit_index];
@@ -360,12 +359,14 @@ void nic_send(Netbuf* buf) {
     while (desc->owner == OWNER_DMA);
 
     if (desc->addr) {
-        Netbuf* old_netbuf = (Netbuf *)(desc->addr - offsetof(Netbuf, buf));
-        free_netbuf(old_netbuf);
+        free_netbuf(netbuf_start_adress[transmit_index]);
     }
 
-    desc->addr       = (u32)buf->buf;
-    desc->len        = buf->len;
+    // Link the new netbuf
+    netbuf_start_adress[transmit_index] = buf;
+
+    desc->addr       = (u32)buf->pointer;
+    desc->len        = buf->lenght;
     desc->last       = 1;
     desc->ignore_crc = 1;
     desc->owner      = OWNER_DMA;

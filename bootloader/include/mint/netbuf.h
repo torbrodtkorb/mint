@@ -7,7 +7,7 @@
 #include <mint/list.h>
 
 typedef struct {
-    u32 len;
+    u32 lenght;
 
     // This will hold the entire network packet data - must be aligned with 4 bytes
     u8 buf[1536];

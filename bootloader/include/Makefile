@@ -14,4 +14,4 @@ DEPS += mint/types.h
 DEPS += mint/print_format.h
 DEPS += mint/list.h
 DEPS += mint/netbuf.h
-
+DEPS += mint/tftp.h
